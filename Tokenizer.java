@@ -97,17 +97,16 @@ class Tokenizer {
             Matcher matcher = pattern.matcher(input);
             boolean matches = matcher.find();
 
-
             if (matches) {
 
                 do {
                     String output = matcher.group(0);
 
-                    if (output.contains("+")) {
+                    if (output.contains("+")) {         // Addition
                         System.out.println("ADD");
-                    } else if (output.contains("*")) {
+                    } else if (output.contains("*")) {  // Multiplication
                         System.out.println("MUL");
-                    } else {
+                    } else {                            // Number
                         System.out.println("NUMBER: " + output);
                     }   
 
@@ -121,5 +120,20 @@ class Tokenizer {
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    static void MaximalMunchGrammar(String input) {
+        Pattern pattern = Pattern.compile("[0-9]+\\.[0-9]");
+        Matcher matcher = pattern.matcher(input);
+        boolean matches = matcher.find();
+
+        Pattern pattern2 = Pattern.compile("[0-9]+");
+        Matcher matcher2 = pattern2.matcher(input);
+        boolean matches2 = matcher2.find();
+
+
+        
+
+
     }
 }
