@@ -10,7 +10,9 @@ public class Tester {
 
         var result = t.resolve();
 
-        System.out.println(result);
+        t.next();
+
+        System.out.println(result.value);
 
     }
 }
