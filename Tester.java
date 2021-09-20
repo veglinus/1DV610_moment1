@@ -11,6 +11,7 @@ public class Tester {
         var result = t.resolve();
 
         t.next();
+        t.next();
 
         System.out.println(result.value);
 
