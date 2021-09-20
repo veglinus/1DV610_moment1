@@ -1,139 +1,91 @@
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class Word {
-    String value;
 
-    public Word(String input)
-    {
-        this.value = input;
+class TokenType {
+    String type;
+    String rule;
+
+    TokenType(String typeName, String rule) {
+        this.type = typeName;
+        this.rule = rule;
     }
 
-    public String toString() {
-        return "WORD(" + this.value + ")";
-    }
 }
 
-class End {
-    Boolean value;
-
-    public String toString() {
-        return "END()";
-    }
-}
-
-class Dot {
+class Token {
+    String type;
     String value;
 
-    public Dot(String input) {
-        if (input.contains(".")) {
-            this.value = input;
-        } else {
-            throw new IllegalArgumentException("Cannot set " + input + "to class dot. Input value must be a dot of type String.");
-        }
+    Token(String typeName, String value) {
+        this.type = typeName;
+        this.value = value;
     }
 
-    public String toString() {
-        return "DOT()";
-    }
 }
 
 class Tokenizer {
 
-    String input = "";
+    Grammar grammar;
+    String input;
 
-    Tokenizer(String type, String input) {
+    Tokenizer(Grammar grammar, String input) {
+        this.grammar = grammar;
         this.input = input;
-
-        if (type == "WordAndDotGrammar") {
-            WordAndDotGrammar(this.input);
-        } else if (type == "ArithmeticGrammar") {
-            ArithmeticGrammar(this.input);
-        }
     }
 
-    static void WordAndDotGrammar(String input) {
-        try
-        {
-            Pattern pattern = Pattern.compile("[A-ZÅÄÖa-zåäö]+|[.]", Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(input);
-            boolean matches = matcher.find();
 
-            if (matches) {
+    public ArrayList<Token> resolve() {
+        ArrayList<Token> list = new ArrayList<Token>();
 
-                do {
-                    String output = matcher.group(0);
-                    //System.out.println(matcher.group(0));
+        for (int i = 0; i < grammar.rules.size(); i++) {
+            var rule = grammar.rules.get(i).rule;
+            var type = grammar.rules.get(i).type;
 
-                    if (!output.contains(" ")) { // If String is a word
-
-                        if (output.contains(".")) {
-                            //new Dot(output);
-                            System.out.println("DOT");
-                        } else {
-                            //new Word(output);
-                            System.out.println("WORD: " + output);
-                        }   
-                    }
-                } while (matcher.find());
-                    
-                System.out.println("END");
-                
-            } else {
-                System.out.println("No matches found.");
-            }
-
+            list.add(match(type, rule));
         }
-        catch (Exception e)
-        {
-            throw e;
-        }
+
+
+        // TODO: Check which token detected is the longest (also if it's first)
+
+        return list;
     }
 
-    static void ArithmeticGrammar(String input) {
+    public Token match(String type, String rule) {
         try {
-
-            Pattern pattern = Pattern.compile("[0-9]+(\\.([0-9])+)?|[*]|[+]");
+            Pattern pattern = Pattern.compile(rule);
             Matcher matcher = pattern.matcher(input);
             boolean matches = matcher.find();
 
             if (matches) {
+                String output = matcher.group(0);
+                System.out.println("MATCH");
 
-                do {
-                    String output = matcher.group(0);
-
-                    if (output.contains("+")) {         // Addition
-                        System.out.println("ADD");
-                    } else if (output.contains("*")) {  // Multiplication
-                        System.out.println("MUL");
-                    } else {                            // Number
-                        System.out.println("NUMBER: " + output);
-                    }   
-
-                } while (matcher.find());
-                    
-                System.out.println("END");
-                
+                return new Token(type, output);
+                //list.add(new Token(type, output));
             } else {
-                System.out.println("No matches found.");
+                System.out.println("No match");
+                return null;
             }
+
         } catch (Exception e) {
             throw e;
+            //TODO: handle exception
         }
     }
-
-    static void MaximalMunchGrammar(String input) {
-        Pattern pattern = Pattern.compile("[0-9]+\\.[0-9]");
-        Matcher matcher = pattern.matcher(input);
-        boolean matches = matcher.find();
-
-        Pattern pattern2 = Pattern.compile("[0-9]+");
-        Matcher matcher2 = pattern2.matcher(input);
-        boolean matches2 = matcher2.find();
+}
 
 
-        
+class Grammar {
+    ArrayList<TokenType> rules = new ArrayList<TokenType>();
 
-
+    void add(TokenType token) { // Adds token to rules
+        rules.add(token);
+        /*
+        rules = Arrays.copyOf(rules, rules.length + 1);
+        rules[rules.length -1] = token;
+        */
+        //System.out.println("Added rule: " + token.rule + " " + token.type);
     }
 }

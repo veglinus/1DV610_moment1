@@ -1,9 +1,16 @@
 public class Tester {
     public static void main(String[] args) {
-        //new Tokenizer("WordAndDotGrammar", "Hello hello world World.");
-    
-        new Tokenizer("ArithmeticGrammar", "1+2+2");
 
-        new Tokenizer("MaximalMunchGrammar", "1 1.2+2");
+        Grammar test = new Grammar();
+       
+        test.add(new TokenType("WORD", "[A-ZÅÄÖa-zåäö]+"));
+        test.add(new TokenType("DOT", "[.]"));
+
+        Tokenizer t = new Tokenizer(test, "Hello world.");
+
+        var result = t.resolve();
+
+        System.out.println(result);
+
     }
 }
