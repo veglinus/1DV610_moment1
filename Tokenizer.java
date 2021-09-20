@@ -1,7 +1,10 @@
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// TODO: Rename things well
 
 class TokenType {
     String type;
@@ -35,24 +38,61 @@ class Tokenizer {
         this.input = input;
     }
 
+    public void next() {
+        resolve();
+    }
+    public void back() {
 
-    public ArrayList<Token> resolve() {
-        ArrayList<Token> list = new ArrayList<Token>();
-
-        for (int i = 0; i < grammar.rules.size(); i++) {
-            var rule = grammar.rules.get(i).rule;
-            var type = grammar.rules.get(i).type;
-
-            list.add(match(type, rule));
-        }
-
-
-        // TODO: Check which token detected is the longest (also if it's first)
-
-        return list;
     }
 
-    public Token match(String type, String rule) {
+
+    public Token resolve() {
+        System.out.println(input);
+        ArrayList<Token> list = new ArrayList<Token>();
+
+        for (int i = 0; i < grammar.rules.size(); i++) { // Check string against every rule
+            list.add(
+                match(
+                    grammar.rules.get(i).type,
+                    grammar.rules.get(i).rule,
+                    input)
+                );
+        }
+
+        // Check which token detected is the first one found:
+
+        // TODO: Check which one is the longest
+        // TODO: Apply maximal munch
+
+
+        if (list.size() > 1) { // Our match function found more than 1 match
+            List<Integer> indexlist = new ArrayList<Integer>();
+
+            for (Token token : list) { // Add where the tokens are found to a list
+                indexlist.add(input.indexOf(token.value));
+            }
+
+            int lowest = Collections.min(indexlist); // Find the lowest value, aka first occurance
+            int position = indexlist.indexOf(lowest);
+
+            remove(list.get(position).value);
+            return list.get(position);
+
+        } else { // If there's only one Regex find, just return it
+            remove(list.get(0).value);
+            return list.get(0);
+        }
+        
+    }
+
+    public void remove(String remove) {
+        var start = input.indexOf(remove);
+        input = input.substring(start + remove.length()); // Removes the found value so we don't get duplicates
+
+        System.out.println("Input is now: " + input);
+    }
+
+    public Token match(String type, String rule, String input) {
         try {
             Pattern pattern = Pattern.compile(rule);
             Matcher matcher = pattern.matcher(input);
@@ -74,6 +114,14 @@ class Tokenizer {
             //TODO: handle exception
         }
     }
+
+    /*
+    public Token MaxmimalMunch(String input) {
+
+
+        return;
+    }
+    */
 }
 
 
@@ -82,10 +130,5 @@ class Grammar {
 
     void add(TokenType token) { // Adds token to rules
         rules.add(token);
-        /*
-        rules = Arrays.copyOf(rules, rules.length + 1);
-        rules[rules.length -1] = token;
-        */
-        //System.out.println("Added rule: " + token.rule + " " + token.type);
     }
 }
