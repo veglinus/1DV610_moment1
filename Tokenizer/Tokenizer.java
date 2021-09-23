@@ -1,3 +1,5 @@
+package Tokenizer;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -6,61 +8,45 @@ import java.util.regex.Pattern;
 
 // TODO: Rename things well
 
-class TokenType {
-    String type;
-    String rule;
-
-    TokenType(String typeName, String rule) {
-        this.type = typeName;
-        this.rule = rule;
-    }
-
-}
-
-class Token {
-    String type;
-    String value;
-
-    Token(String typeName, String value) {
-        this.type = typeName;
-        this.value = value;
-    }
-
-    public String toString() {
-        return this.type + "(" + this.value + ")";
-    }
-
-}
-
-class Tokenizer {
+public class Tokenizer {
 
     ArrayList<Token> Tokens = new ArrayList<Token>();
 
     Grammar grammar;
     String input;
-    Boolean endReached = false;
+    //Boolean endReached = false;
 
     int currentTokenIndex;
 
-    Tokenizer(Grammar grammar, String input) {
+    public Tokenizer(Grammar grammar, String input) {
         this.grammar = grammar;
         this.input = input;
+
+        next(); // To start the application
     }
 
     public void next() {
 
-        checkForEnd();
+        Boolean endreached = checkForEnd();
 
-        if (endReached) {
-            var lastToken = Tokens.get(Tokens.size() - 1);
+        if (endreached) {
 
-            if (lastToken.type == "END") {
-                System.out.println("No more matches.");
-            } else {
+            if (Tokens.isEmpty()) {
                 // END token doesn't exist, add it.
                 Tokens.add(new Token("END", ""));
                 System.out.println("END()");
+            } else {
+                var lastToken = Tokens.get(Tokens.size() - 1);
+
+                if (lastToken.type == "END") {
+                    System.out.println("No more matches.");
+                } else {
+                    // END token doesn't exist, add it.
+                    Tokens.add(new Token("END", ""));
+                    System.out.println("END()");
+                }
             }
+
             
         } else {
             Token t = resolve();
@@ -71,28 +57,32 @@ class Tokenizer {
     }
 
     public void back() {
-
         if (this.currentTokenIndex != 0) {
             this.currentTokenIndex--;
         }
 
         Token currentToken = Tokens.get(currentTokenIndex);
-
         System.out.println(currentToken.toString());
-
     }
 
-    private void checkForEnd() {
+    private Boolean checkForEnd() {
 
         String trimmedInput = this.input.trim();
 
-        if (trimmedInput != null && !trimmedInput.isEmpty()) {
-            this.endReached = false;
+        if (trimmedInput == "") {
+            //this.endReached = true;
+            return true;
         } else {
-            this.endReached = true;
-            
+            if (trimmedInput != null && !trimmedInput.isEmpty()) {
+                //this.endReached = false;
+                return false;
+            } else {
+                //this.endReached = true;
+                return true;
+                
+            }
+
         }
-        
     }
 
 
@@ -117,7 +107,6 @@ class Tokenizer {
                 }
         }
 
-        // TODO: If no matches were found, throw lexikalfel
         if (!this.input.isEmpty() && list.isEmpty()) { // Hanterar lexikala fel
             throw new IllegalArgumentException("No lexical element matches input.");
         }
@@ -212,13 +201,4 @@ class Tokenizer {
         return tokens.get(position);
     }
     
-}
-
-
-class Grammar {
-    ArrayList<TokenType> rules = new ArrayList<TokenType>();
-
-    void add(TokenType token) { // Adds token to rules
-        rules.add(token);
-    }
 }

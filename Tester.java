@@ -1,44 +1,32 @@
+import Tokenizer.*;
+
 public class Tester {
     public static void main(String[] args) {
 
-        Grammar test = new Grammar();
        
-        /*
-        test.add(new TokenType("WORD", "[A-ZÅÄÖa-zåäö]+"));
-        test.add(new TokenType("DOT", "[.]"));
+        Grammar WordAndDotGrammar = new Grammar();
+        WordAndDotGrammar.add(new TokenType("WORD", "[A-ZÅÄÖa-zåäö]+"));
+        WordAndDotGrammar.add(new TokenType("DOT", "[.]"));
 
-        Tokenizer t = new Tokenizer(test, "Hello world.");
+        Grammar ArithmeticGrammar = new Grammar();
+        ArithmeticGrammar.add(new TokenType("NUMBER", "^[0-9]+(\\.([0-9])+)?"));
+        ArithmeticGrammar.add(new TokenType("ADD", "^[+]"));
+        ArithmeticGrammar.add(new TokenType("MUL", "^[*]"));
 
-        t.next();
-        t.next();
-        t.next();
-        t.next();
-        t.back();
-        t.back();
-        */
+        Grammar MaximalMunchGrammar = new Grammar();
+        MaximalMunchGrammar.add(new TokenType("FLOAT", "^[0-9]+\\.[0-9]+"));
+        MaximalMunchGrammar.add(new TokenType("INTEGER", "^[0-9]+"));
 
-        /*
-        test.add(new TokenType("FLOAT", "^[0-9]+\\.[0-9]+"));
-        test.add(new TokenType("INTEGER", "^[0-9]+"));
-
-        Tokenizer t = new Tokenizer(test, "3.14 5 335");
-
-        t.next();
-        t.next();
-        t.next();
-        t.next();
-        */
-
-        test.add(new TokenType("FLOAT", "^[0-9]+\\.[0-9]+"));
-
-        Tokenizer t = new Tokenizer(test, "3.14 Hej! 4");
+        Tokenizer t = new Tokenizer(WordAndDotGrammar, "Hello world.");
 
         t.next();
         t.next();
 
-
-
-        //System.out.println(result.value);
-
+        // This example gives the following output:
+        /**
+         * WORD(Hello)
+         * Word(world)
+         * DOT(.)
+         */
     }
 }
