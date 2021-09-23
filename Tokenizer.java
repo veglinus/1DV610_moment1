@@ -30,10 +30,6 @@ class Token {
         return this.type + "(" + this.value + ")";
     }
 
-    public String stringit() {
-        return this.type + "(" + this.value + ")";
-    }
-
 }
 
 class Tokenizer {
@@ -86,7 +82,7 @@ class Tokenizer {
 
     }
 
-    public void checkForEnd() {
+    private void checkForEnd() {
 
         String trimmedInput = this.input.trim();
 
@@ -100,8 +96,10 @@ class Tokenizer {
     }
 
 
-    public Token resolve() {
+    private Token resolve() {
+        this.input = this.input.stripLeading();
         //System.out.println(input);
+        
         ArrayList<Token> list = new ArrayList<Token>();
 
         for (int i = 0; i < grammar.rules.size(); i++) { // Check string against every rule
@@ -113,29 +111,37 @@ class Tokenizer {
 
                 if (add != null) {
                     list.add(add); 
+                    //System.out.println("Matches rule");
+                } else {
+                    //System.out.println("Didn't add to list. " + i + " of " + grammar.rules.size());
                 }
         }
 
-        // TODO: Hantera lexikala fel
+        // TODO: If no matches were found, throw lexikalfel
+        if (!this.input.isEmpty() && list.isEmpty()) { // Hanterar lexikala fel
+            throw new IllegalArgumentException("No lexical element matches input.");
+        }
 
         //System.out.println("List is of size: " + list.size());
         if (list.size() > 1) { // Our match function found more than 1 match
             List<Integer> indexlist = new ArrayList<Integer>();
+            List<Token> matchingTokens = new ArrayList<Token>();
 
             for (Token token : list) { // Add where the tokens are found to a list
                 indexlist.add(this.input.indexOf(token.value));
+                matchingTokens.add(token);
             }
 
             int lowest = Collections.min(indexlist); // Find the lowest value, aka first occurance
             int position = indexlist.indexOf(lowest);
 
             if (checkDuplicateValues(indexlist)) { // If two values are the same, we do maximal munch
+                //System.out.println("maximal munch");
+                Token winner = maxmimalMunch(matchingTokens);
 
-                // TODO: Apply maximal munch
-
-                System.out.println("maximal munch");
-                return null;
-
+                Tokens.add(winner);
+                remove(winner.value);
+                return winner;
 
             } else { // All matches are at different positions, so we grab the first occurance
                 Tokens.add(new Token(list.get(position).type, list.get(position).value));
@@ -161,7 +167,7 @@ class Tokenizer {
         return true;
     }
 
-    public void remove(String remove) {
+    private void remove(String remove) {
         this.input = this.input.strip(); // Optional whitespace trim
         var start = this.input.indexOf(remove);
         //System.out.println("Removing: " + remove + " at " + start + " to " + remove.length());
@@ -169,7 +175,7 @@ class Tokenizer {
         //System.out.println("Input is now: " + this.input);
     }
 
-    public Token match(String type, String rule, String input) {
+    private Token match(String type, String rule, String input) {
         try {
             Pattern pattern = Pattern.compile(rule);
             Matcher matcher = pattern.matcher(input);
@@ -192,13 +198,20 @@ class Tokenizer {
         }
     }
 
-    /*
-    public Token MaxmimalMunch(String input) {
+    
+    public Token maxmimalMunch(List<Token> tokens) {
+        List<Integer> lengthList = new ArrayList<Integer>();
 
+        for (Token token : tokens) {
+            lengthList.add(token.value.length());
+        }
 
-        return;
+        var maxvalue = Collections.max(lengthList);
+        var position = lengthList.indexOf(maxvalue);
+
+        return tokens.get(position);
     }
-    */
+    
 }
 
 
