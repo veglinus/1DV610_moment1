@@ -8,12 +8,14 @@ public class Tester {
 
         Tokenizer t = new Tokenizer(test, "Hello world.");
 
-        var result = t.resolve();
-
         t.next();
         t.next();
+        t.next();
+        t.next();
+        t.back();
+        t.back();
 
-        System.out.println(result.value);
+        //System.out.println(result.value);
 
     }
 }

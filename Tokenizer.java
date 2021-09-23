@@ -26,12 +26,25 @@ class Token {
         this.value = value;
     }
 
+    public String toString() {
+        return this.type + "(" + this.value + ")";
+    }
+
+    public String stringit() {
+        return this.type + "(" + this.value + ")";
+    }
+
 }
 
 class Tokenizer {
 
+    ArrayList<Token> Tokens = new ArrayList<Token>();
+
     Grammar grammar;
     String input;
+    Boolean endReached = false;
+
+    int currentTokenIndex;
 
     Tokenizer(Grammar grammar, String input) {
         this.grammar = grammar;
@@ -40,17 +53,50 @@ class Tokenizer {
 
     public void next() {
 
+        checkForEnd();
 
-        //if (input != null && !input.isEmpty()) {
-            resolve();
-        /*
+        if (endReached) {
+            var lastToken = Tokens.get(Tokens.size() - 1);
+
+            if (lastToken.type == "END") {
+                System.out.println("No more matches.");
+            } else {
+                // END token doesn't exist, add it.
+                Tokens.add(new Token("END", ""));
+                System.out.println("END()");
+            }
+            
         } else {
-            System.out.println("String is empty.");
-        }*/
-        
+            Token t = resolve();
+            System.out.println(t.type + "(" + t.value + ")");
+            currentTokenIndex++;
+        }
+
     }
+
     public void back() {
 
+        if (this.currentTokenIndex != 0) {
+            this.currentTokenIndex--;
+        }
+
+        Token currentToken = Tokens.get(currentTokenIndex);
+
+        System.out.println(currentToken.toString());
+
+    }
+
+    public void checkForEnd() {
+
+        String trimmedInput = this.input.trim();
+
+        if (trimmedInput != null && !trimmedInput.isEmpty()) {
+            this.endReached = false;
+        } else {
+            this.endReached = true;
+            
+        }
+        
     }
 
 
@@ -72,9 +118,7 @@ class Tokenizer {
 
         // TODO: Hantera lexikala fel
 
-        System.out.println("List is of size: " + list.size());
-
-
+        //System.out.println("List is of size: " + list.size());
         if (list.size() > 1) { // Our match function found more than 1 match
             List<Integer> indexlist = new ArrayList<Integer>();
 
@@ -86,23 +130,22 @@ class Tokenizer {
             int position = indexlist.indexOf(lowest);
 
             if (checkDuplicateValues(indexlist)) { // If two values are the same, we do maximal munch
-                // TODO: Test
 
                 // TODO: Apply maximal munch
-
 
                 System.out.println("maximal munch");
                 return null;
 
 
             } else { // All matches are at different positions, so we grab the first occurance
+                Tokens.add(new Token(list.get(position).type, list.get(position).value));
                 remove(list.get(position).value);
                 return list.get(position);
             }
 
         } else { // If there's only one Regex find, just return it
 
-        
+            Tokens.add(new Token(list.get(0).type, list.get(0).value));
             remove(list.get(0).value);
             return list.get(0);
         }
@@ -121,10 +164,9 @@ class Tokenizer {
     public void remove(String remove) {
         this.input = this.input.strip(); // Optional whitespace trim
         var start = this.input.indexOf(remove);
-        System.out.println("Removing: " + remove + " at " + start + " to " + remove.length());
+        //System.out.println("Removing: " + remove + " at " + start + " to " + remove.length());
         this.input = this.input.substring(start + remove.length()); // Removes the found value so we don't get duplicates
-
-        System.out.println("Input is now: " + this.input);
+        //System.out.println("Input is now: " + this.input);
     }
 
     public Token match(String type, String rule, String input) {
