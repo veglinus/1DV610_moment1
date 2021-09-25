@@ -24,3 +24,5 @@ WordAndDotGrammar.add(new TokenType("DOT", "[.]"));
 Examples of the different grammars from the assignment are included in the Tester.java file. Remember that the regex input cannot have trailing or leading "/" slash symbols. Backslashes also need to be typed as two, "\\" instead of "\" in your regex.
 
 The tokenizer will throw an exception if you input something that cannot be recognized by the rules you inserted in the grammar.
+
+The tokenizer is behaving a bit strangely when going out of bounds (past end token) and then back, then forward again. Be aware.

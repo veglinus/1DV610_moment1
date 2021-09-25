@@ -38,25 +38,16 @@ public class Tokenizer {
             throw new IllegalArgumentException("Can't go back further.");
             
         } else {
+            // Can cause issues with going backwards
             this.activeToken--;
             Token currentToken = Tokens.get(activeToken);
             System.out.println(currentToken.toString());
         }
         
-        /*
-        if (this.activeToken != 0) {
-            Token currentToken = Tokens.get(activeToken);
-            System.out.println(currentToken.toString());
-            this.activeToken--;
-        } else {
-            
-        }*/
-
-
     }
 
     private void handleEndToken() {
-        if (Tokens.isEmpty()) { // END token doesn't exist, add it.
+        if (Tokens.isEmpty()) { // List is empty, just put an end token
             Tokens.add(new Token("END", ""));
             this.activeToken++;
             System.out.println("END()");
@@ -64,9 +55,14 @@ public class Tokenizer {
             var lastToken = Tokens.get(Tokens.size() - 1);
 
             if (lastToken.type == "END") {
-                System.out.println("End of data.");
+
+                if (Tokens.get(activeToken) == lastToken) {
+                    System.out.println("Out of bounds.");
+                } else {
+                    System.out.println("END()");
+                }
+
             } else {
-                // END token doesn't exist, add it.
                 Tokens.add(new Token("END", ""));
                 this.activeToken++;
                 System.out.println("END()");
