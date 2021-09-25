@@ -57,6 +57,7 @@ Jag har kört igenom testfall TC1-16 med hjälp av den regex som står i uppgift
 Lista de enskilda testfallen. **Fetmarkera** sådant som du själv fyllt i. En rad per testfall.
 
 |Namn| Grammatik         | Sträng                | Sekvens | Förväntat Aktivt Token | PASS/FAIL |
+|----|-------------------|-----------------------|---------|---------------|-----|
 |TC1 | WordAndDotGrammar | "a"                   | []      | WORD("a") | PASS |
 |TC2 | WordAndDotGrammar | "a aa"                | [>]     | WORD("aa") | PASS |
 |TC3 | WordAndDotGrammar | "a.b"                 | [>]     | DOT(".") | PASS |
