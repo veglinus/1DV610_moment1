@@ -11,13 +11,11 @@ public class Tokenizer {
     ArrayList<Token> Tokens = new ArrayList<Token>();
     Grammar grammar;
     String input;
-
-    int currentTokenIndex;
+    int activeToken;
 
     public Tokenizer(Grammar grammar, String input) {
         this.grammar = grammar;
         this.input = input;
-
         next(); // To start the application we run next on construction
     }
 
@@ -29,17 +27,17 @@ public class Tokenizer {
         } else {
             Token t = tokenize();
             System.out.println(t.type + "(" + t.value + ")");
-            currentTokenIndex++;
+            activeToken++;
         }
 
     }
 
     public void back() {
-        if (this.currentTokenIndex != 0) {
-            this.currentTokenIndex--;
+        if (this.activeToken != 0) {
+            this.activeToken--;
         }
 
-        Token currentToken = Tokens.get(currentTokenIndex);
+        Token currentToken = Tokens.get(activeToken);
         System.out.println(currentToken.toString());
     }
 
@@ -70,70 +68,66 @@ public class Tokenizer {
                 return false;
             } else {
                 return true;
-                
             }
-
         }
     }
 
-
     private Token tokenize() {
         this.input = this.input.stripLeading();
-        ArrayList<Token> list = new ArrayList<Token>();
+        ArrayList<Token> matches = new ArrayList<Token>();
 
         for (int i = 0; i < grammar.rules.size(); i++) { // Check string against every rule
-            
-                var add = match(
+                Token match = regexMatch(
                     grammar.rules.get(i).type,
                     grammar.rules.get(i).rule,
                     this.input);
 
-                if (add != null) {
-                    list.add(add); 
+                if (match != null) {
+                    matches.add(match); 
                 }
         }
 
-        if (!this.input.isEmpty() && list.isEmpty()) { // Hanterar lexikala fel
+        if (!this.input.isEmpty() && matches.isEmpty()) { // Handles lexical errors
             throw new IllegalArgumentException("No lexical element matches input.");
         }
 
-
-        if (list.size() > 1) { // Our match function found more than 1 match
-            List<Integer> indexlist = new ArrayList<Integer>();
-            List<Token> matchingTokens = new ArrayList<Token>();
-
-            for (Token token : list) { // Add where the tokens are found to a list
-                indexlist.add(this.input.indexOf(token.value));
-                matchingTokens.add(token);
-            }
-
-            int lowest = Collections.min(indexlist); // Find the lowest value, aka first occurance
-            int position = indexlist.indexOf(lowest);
-
-            if (checkDuplicateValues(indexlist)) { // If two values are the same, we do maximal munch
-                Token winner = maxmimalMunch(matchingTokens);
-                Tokens.add(winner);
-                removeFromInput(winner.value);
-                return winner;
-
-            } else { // All matches are at different positions, so we grab the first occurance
-                Tokens.add(new Token(list.get(position).type, list.get(position).value));
-                removeFromInput(list.get(position).value);
-                return list.get(position);
-            }
-
+        if (matches.size() > 1) { // Our match function found more than 1 match
+            return compareTokens(matches);
         } else { // If there's only one Regex find, just return it
-
-            Tokens.add(new Token(list.get(0).type, list.get(0).value));
-            removeFromInput(list.get(0).value);
-            return list.get(0);
+            Tokens.add(new Token(matches.get(0).type, matches.get(0).value));
+            removeFromInput(matches.get(0).value);
+            return matches.get(0);
         }
-        
     }
 
-    private boolean checkDuplicateValues(List<Integer> list) {
-        for (Integer number : list) {
-            if (!number.equals(list.get(0))) { // https://www.baeldung.com/java-list-all-equal
+    private Token compareTokens(ArrayList<Token> matches) {
+        List<Integer> indexlist = new ArrayList<Integer>();
+        List<Token> matchingTokens = new ArrayList<Token>();
+
+        for (Token token : matches) { // Add where the tokens are found to a list
+            indexlist.add(this.input.indexOf(token.value));
+            matchingTokens.add(token);
+        }
+
+        int lowest = Collections.min(indexlist); // Find the lowest value, aka first occurance
+        int position = indexlist.indexOf(lowest);
+
+        if (checkDuplicateValues(indexlist)) { // If two values are the same, we do maximal munch
+            Token winner = maxmimalMunch(matchingTokens);
+            Tokens.add(winner);
+            removeFromInput(winner.value);
+            return winner;
+
+        } else { // All matches are at different positions, so we grab the first occurance
+            Tokens.add(new Token(matches.get(position).type, matches.get(position).value));
+            removeFromInput(matches.get(position).value);
+            return matches.get(position);
+        }
+    }
+
+    private boolean checkDuplicateValues(List<Integer> matches) {
+        for (Integer number : matches) {
+            if (!number.equals(matches.get(0))) { // https://www.baeldung.com/java-list-all-equal
                 return false;
             }
         }
@@ -146,7 +140,7 @@ public class Tokenizer {
         this.input = this.input.substring(start + remove.length()); // Removes the found value so we don't get duplicates
     }
 
-    private Token match(String type, String rule, String input) {
+    private Token regexMatch(String type, String rule, String input) {
         try {
             Pattern pattern = Pattern.compile(rule);
             Matcher matcher = pattern.matcher(input);
