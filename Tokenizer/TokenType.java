@@ -2,10 +2,10 @@ package Tokenizer;
 
 public class TokenType {
     String type;
-    String rule;
+    String regex;
 
-    public TokenType(String typeName, String rule) {
+    public TokenType(String typeName, String regex) {
         this.type = typeName;
-        this.rule = rule;
+        this.regex = regex;
     }
 }

@@ -11,7 +11,7 @@ public class Tokenizer {
     ArrayList<Token> Tokens = new ArrayList<Token>();
     Grammar grammar;
     String input;
-    int activeToken;
+    int activeToken = -1;
 
     public Tokenizer(Grammar grammar, String input) {
         this.grammar = grammar;
@@ -20,10 +20,10 @@ public class Tokenizer {
     }
 
     public void next() {
-        Boolean endreached = checkForEnd();
+        Boolean endreached = checkForEndofInput();
 
         if (endreached) {
-            endOfInput();
+            handleEndToken();
         } else {
             Token t = tokenize();
             System.out.println(t.type + "(" + t.value + ")");
@@ -33,17 +33,32 @@ public class Tokenizer {
     }
 
     public void back() {
-        if (this.activeToken != 0) {
+        
+        if (this.activeToken - 1 == -1) {
+            throw new IllegalArgumentException("Can't go back further.");
+            
+        } else {
             this.activeToken--;
+            Token currentToken = Tokens.get(activeToken);
+            System.out.println(currentToken.toString());
         }
+        
+        /*
+        if (this.activeToken != 0) {
+            Token currentToken = Tokens.get(activeToken);
+            System.out.println(currentToken.toString());
+            this.activeToken--;
+        } else {
+            
+        }*/
 
-        Token currentToken = Tokens.get(activeToken);
-        System.out.println(currentToken.toString());
+
     }
 
-    private void endOfInput() {
+    private void handleEndToken() {
         if (Tokens.isEmpty()) { // END token doesn't exist, add it.
             Tokens.add(new Token("END", ""));
+            this.activeToken++;
             System.out.println("END()");
         } else {
             var lastToken = Tokens.get(Tokens.size() - 1);
@@ -53,12 +68,13 @@ public class Tokenizer {
             } else {
                 // END token doesn't exist, add it.
                 Tokens.add(new Token("END", ""));
+                this.activeToken++;
                 System.out.println("END()");
             }
         }
     }
 
-    private Boolean checkForEnd() {
+    private Boolean checkForEndofInput() {
         String trimmedInput = this.input.trim();
 
         if (trimmedInput == "") {
@@ -77,9 +93,9 @@ public class Tokenizer {
         ArrayList<Token> matches = new ArrayList<Token>();
 
         for (int i = 0; i < grammar.rules.size(); i++) { // Check string against every rule
-                Token match = regexMatch(
+                Token match = matchRegex(
                     grammar.rules.get(i).type,
-                    grammar.rules.get(i).rule,
+                    grammar.rules.get(i).regex,
                     this.input);
 
                 if (match != null) {
@@ -140,7 +156,7 @@ public class Tokenizer {
         this.input = this.input.substring(start + remove.length()); // Removes the found value so we don't get duplicates
     }
 
-    private Token regexMatch(String type, String rule, String input) {
+    private Token matchRegex(String type, String rule, String input) {
         try {
             Pattern pattern = Pattern.compile(rule);
             Matcher matcher = pattern.matcher(input);

@@ -17,10 +17,17 @@ public class Tester {
         MaximalMunchGrammar.add(new TokenType("FLOAT", "^[0-9]+\\.[0-9]+"));
         MaximalMunchGrammar.add(new TokenType("INTEGER", "^[0-9]+"));
 
-        Tokenizer t = new Tokenizer(WordAndDotGrammar, "Hello world.");
+        //Tokenizer t = new Tokenizer(WordAndDotGrammar, "Hello world.");
+
+        Tokenizer t = new Tokenizer(ArithmeticGrammar, "3.0+54.1     + 4.2");
+
+        t.next();
+        t.back();
 
         t.next();
         t.next();
+        t.next();
+
 
         // This example gives the following output:
         /**
