@@ -6,15 +6,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// TODO: Rename things well
-
 public class Tokenizer {
 
     ArrayList<Token> Tokens = new ArrayList<Token>();
-
     Grammar grammar;
     String input;
-    //Boolean endReached = false;
 
     int currentTokenIndex;
 
@@ -22,34 +18,16 @@ public class Tokenizer {
         this.grammar = grammar;
         this.input = input;
 
-        next(); // To start the application
+        next(); // To start the application we run next on construction
     }
 
     public void next() {
-
         Boolean endreached = checkForEnd();
 
         if (endreached) {
-
-            if (Tokens.isEmpty()) {
-                // END token doesn't exist, add it.
-                Tokens.add(new Token("END", ""));
-                System.out.println("END()");
-            } else {
-                var lastToken = Tokens.get(Tokens.size() - 1);
-
-                if (lastToken.type == "END") {
-                    System.out.println("No more matches.");
-                } else {
-                    // END token doesn't exist, add it.
-                    Tokens.add(new Token("END", ""));
-                    System.out.println("END()");
-                }
-            }
-
-            
+            endOfInput();
         } else {
-            Token t = resolve();
+            Token t = tokenize();
             System.out.println(t.type + "(" + t.value + ")");
             currentTokenIndex++;
         }
@@ -65,19 +43,32 @@ public class Tokenizer {
         System.out.println(currentToken.toString());
     }
 
-    private Boolean checkForEnd() {
+    private void endOfInput() {
+        if (Tokens.isEmpty()) { // END token doesn't exist, add it.
+            Tokens.add(new Token("END", ""));
+            System.out.println("END()");
+        } else {
+            var lastToken = Tokens.get(Tokens.size() - 1);
 
+            if (lastToken.type == "END") {
+                System.out.println("End of data.");
+            } else {
+                // END token doesn't exist, add it.
+                Tokens.add(new Token("END", ""));
+                System.out.println("END()");
+            }
+        }
+    }
+
+    private Boolean checkForEnd() {
         String trimmedInput = this.input.trim();
 
         if (trimmedInput == "") {
-            //this.endReached = true;
             return true;
         } else {
             if (trimmedInput != null && !trimmedInput.isEmpty()) {
-                //this.endReached = false;
                 return false;
             } else {
-                //this.endReached = true;
                 return true;
                 
             }
@@ -86,10 +77,8 @@ public class Tokenizer {
     }
 
 
-    private Token resolve() {
+    private Token tokenize() {
         this.input = this.input.stripLeading();
-        //System.out.println(input);
-        
         ArrayList<Token> list = new ArrayList<Token>();
 
         for (int i = 0; i < grammar.rules.size(); i++) { // Check string against every rule
@@ -101,9 +90,6 @@ public class Tokenizer {
 
                 if (add != null) {
                     list.add(add); 
-                    //System.out.println("Matches rule");
-                } else {
-                    //System.out.println("Didn't add to list. " + i + " of " + grammar.rules.size());
                 }
         }
 
@@ -111,7 +97,7 @@ public class Tokenizer {
             throw new IllegalArgumentException("No lexical element matches input.");
         }
 
-        //System.out.println("List is of size: " + list.size());
+
         if (list.size() > 1) { // Our match function found more than 1 match
             List<Integer> indexlist = new ArrayList<Integer>();
             List<Token> matchingTokens = new ArrayList<Token>();
@@ -125,23 +111,21 @@ public class Tokenizer {
             int position = indexlist.indexOf(lowest);
 
             if (checkDuplicateValues(indexlist)) { // If two values are the same, we do maximal munch
-                //System.out.println("maximal munch");
                 Token winner = maxmimalMunch(matchingTokens);
-
                 Tokens.add(winner);
-                remove(winner.value);
+                removeFromInput(winner.value);
                 return winner;
 
             } else { // All matches are at different positions, so we grab the first occurance
                 Tokens.add(new Token(list.get(position).type, list.get(position).value));
-                remove(list.get(position).value);
+                removeFromInput(list.get(position).value);
                 return list.get(position);
             }
 
         } else { // If there's only one Regex find, just return it
 
             Tokens.add(new Token(list.get(0).type, list.get(0).value));
-            remove(list.get(0).value);
+            removeFromInput(list.get(0).value);
             return list.get(0);
         }
         
@@ -156,12 +140,10 @@ public class Tokenizer {
         return true;
     }
 
-    private void remove(String remove) {
-        this.input = this.input.strip(); // Optional whitespace trim
+    private void removeFromInput(String remove) {
+        this.input = this.input.strip();
         var start = this.input.indexOf(remove);
-        //System.out.println("Removing: " + remove + " at " + start + " to " + remove.length());
         this.input = this.input.substring(start + remove.length()); // Removes the found value so we don't get duplicates
-        //System.out.println("Input is now: " + this.input);
     }
 
     private Token match(String type, String rule, String input) {
@@ -172,18 +154,13 @@ public class Tokenizer {
 
             if (matches) {
                 String output = matcher.group(0);
-                //System.out.println("MATCH");
-
                 return new Token(type, output);
-                //list.add(new Token(type, output));
             } else {
-                //System.out.println("No match");
                 return null;
             }
 
         } catch (Exception e) {
             throw e;
-            //TODO: handle exception
         }
     }
 
@@ -195,10 +172,10 @@ public class Tokenizer {
             lengthList.add(token.value.length());
         }
 
-        var maxvalue = Collections.max(lengthList);
-        var position = lengthList.indexOf(maxvalue);
+        var maxvalue = Collections.max(lengthList); // Longest length = maximal munch winner
+        var position = lengthList.indexOf(maxvalue); // Index of winner
 
-        return tokens.get(position);
+        return tokens.get(position); // Return the token at the position of winner
     }
     
 }
