@@ -1,8 +1,8 @@
 package Tokenizer;
 
 public class Token {
-    String type;
-    String value;
+    public String type = "";
+    public String value = "";
 
     Token(String typeName, String value) {
         this.type = typeName;

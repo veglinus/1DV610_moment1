@@ -16,18 +16,20 @@ public class Tokenizer {
     public Tokenizer(Grammar grammar, String input) {
         this.grammar = grammar;
         this.input = input;
-        next(); // To start the application we run next on construction
+        //next(); // To start the application we run next on construction
     }
 
-    public void next() {
+    public Token next() {
         Boolean endreached = checkForEndofInput();
 
         if (endreached) {
             handleEndToken();
+            return new Token("END", "");
         } else {
             Token t = tokenize();
-            System.out.println(t.type + "(" + t.value + ")");
+            //System.out.println(t.type + "(" + t.value + ")");
             activeToken++;
+            return (Token) t;
         }
 
     }
@@ -50,7 +52,7 @@ public class Tokenizer {
         if (Tokens.isEmpty()) { // List is empty, just put an end token
             Tokens.add(new Token("END", ""));
             this.activeToken++;
-            System.out.println("END()");
+            //System.out.println("END()");
         } else {
             var lastToken = Tokens.get(Tokens.size() - 1);
 
@@ -59,13 +61,13 @@ public class Tokenizer {
                 if (Tokens.get(activeToken) == lastToken) {
                     System.out.println("Out of bounds.");
                 } else {
-                    System.out.println("END()");
+                    //System.out.println("END()");
                 }
 
             } else {
                 Tokens.add(new Token("END", ""));
                 this.activeToken++;
-                System.out.println("END()");
+                //System.out.println("END()");
             }
         }
     }
