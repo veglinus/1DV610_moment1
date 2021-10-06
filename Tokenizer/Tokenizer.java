@@ -23,8 +23,7 @@ public class Tokenizer {
     public Token setFirstToken() {
         Boolean endreached = checkForEndofInput();
         if (endreached) {
-            Tokens.add(new Token("END", ""));
-            return new Token("END", "");
+            return endToken(); // Sets first token to END, doesn't increase activeToken
         } else {
             Token t = tokenize();
             return (Token) t;
@@ -32,22 +31,15 @@ public class Tokenizer {
     }
 
     public Token getActiveToken() {
-        try {
-            return Tokens.get(activeToken);
-        } catch (Exception e) {
-            throw e;
-        }
+        return Tokens.get(activeToken);
     }
 
     public Token next() {
         Boolean endreached = checkForEndofInput();
-
         if (endreached) {
-            handleEndToken();
-            return new Token("END", "");
+            return handleEndToken();
         } else {
             Token t = tokenize();
-            //System.out.println(t.type + "(" + t.value + ")");
             activeToken++;
             return (Token) t;
         }
@@ -55,41 +47,28 @@ public class Tokenizer {
     }
 
     public void back() {
-        
         if (this.activeToken - 1 == -1) {
             throw new IllegalArgumentException("Can't go back further.");
-            
         } else {
             // Can cause issues with going backwards
             this.activeToken--;
             Token currentToken = Tokens.get(activeToken);
             System.out.println(currentToken.toString());
         }
-        
     }
 
-    private void handleEndToken() {
-        if (Tokens.isEmpty()) { // List is empty, just put an end token
-            Tokens.add(new Token("END", ""));
-            this.activeToken++;
-            //System.out.println("END()");
+    private Token handleEndToken() {
+        if (Tokens.get(activeToken).type != "END") {
+            activeToken++;
+            return endToken();
         } else {
-            var lastToken = Tokens.get(Tokens.size() - 1);
-
-            if (lastToken.type == "END") {
-
-                if (Tokens.get(activeToken) == lastToken) {
-                    System.out.println("Out of bounds.");
-                } else {
-                    //System.out.println("END()");
-                }
-
-            } else {
-                Tokens.add(new Token("END", ""));
-                this.activeToken++;
-                //System.out.println("END()");
-            }
+            return getActiveToken();
         }
+    }
+
+    private Token endToken() {
+        Tokens.add(new Token("END", ""));
+        return new Token("END", "");
     }
 
     private Boolean checkForEndofInput() {
