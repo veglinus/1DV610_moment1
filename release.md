@@ -73,7 +73,7 @@ Lista de enskilda testfallen. **Fetmarkera** sådant som du själv fyllt i. En r
 |TC13| ArithmeticGrammar | "3.14"                | []      | NUMBER("3.14") | PASS |
 |TC14| ArithmeticGrammar | "3 + 54 * 4"          | [>>>]   | MUL("*") | PASS |
 |TC15| ArithmeticGrammar | "3+5 # 4"             | [>>>]   | **Exception** | PASS |
-|TC16| ArithmeticGrammar | "3.0+54.1     + 4.2"  | [><>>>] | **NUMBER(4.2)** | PASS |
+|TC16| ArithmeticGrammar | "3.0+54.1     + 4.2"  | [><>>>] | **ADD(+)** | PASS |
 
 ## Kodkvalitetskrav
 

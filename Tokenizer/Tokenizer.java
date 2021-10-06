@@ -11,12 +11,32 @@ public class Tokenizer {
     ArrayList<Token> Tokens = new ArrayList<Token>();
     Grammar grammar;
     String input;
-    int activeToken = -1;
+    int activeToken = 0;
 
     public Tokenizer(Grammar grammar, String input) {
         this.grammar = grammar;
         this.input = input;
         //next(); // To start the application we run next on construction
+        setFirstToken();
+    }
+
+    public Token setFirstToken() {
+        Boolean endreached = checkForEndofInput();
+        if (endreached) {
+            Tokens.add(new Token("END", ""));
+            return new Token("END", "");
+        } else {
+            Token t = tokenize();
+            return (Token) t;
+        }
+    }
+
+    public Token getActiveToken() {
+        try {
+            return Tokens.get(activeToken);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     public Token next() {
