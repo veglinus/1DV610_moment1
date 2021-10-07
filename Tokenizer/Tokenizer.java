@@ -3,8 +3,6 @@ package Tokenizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Tokenizer {
 
@@ -20,16 +18,6 @@ public class Tokenizer {
         setFirstToken();
     }
 
-    public Token setFirstToken() {
-        Boolean endreached = checkForEndofInput();
-        if (endreached) {
-            return endToken(); // Sets first token to END, doesn't increase activeToken
-        } else {
-            Token t = tokenize();
-            return (Token) t;
-        }
-    }
-
     public Token getActiveToken() {
         return Tokens.get(activeToken);
     }
@@ -43,7 +31,6 @@ public class Tokenizer {
             activeToken++;
             return (Token) t;
         }
-
     }
 
     public void back() {
@@ -57,48 +44,9 @@ public class Tokenizer {
         }
     }
 
-    private Token handleEndToken() {
-        if (Tokens.get(activeToken).type != "END") {
-            activeToken++;
-            return endToken();
-        } else {
-            return getActiveToken();
-        }
-    }
-
-    private Token endToken() {
-        Tokens.add(new Token("END", ""));
-        return new Token("END", "");
-    }
-
-    private Boolean checkForEndofInput() {
-        String trimmedInput = this.input.trim();
-
-        if (trimmedInput == "") {
-            return true;
-        } else {
-            if (trimmedInput != null && !trimmedInput.isEmpty()) {
-                return false;
-            } else {
-                return true;
-            }
-        }
-    }
-
     private Token tokenize() {
         this.input = this.input.stripLeading();
-        ArrayList<Token> matches = new ArrayList<Token>();
-
-        for (int i = 0; i < grammar.rules.size(); i++) { // Check string against every rule
-                Token match = matchRegex(
-                    grammar.rules.get(i).type,
-                    grammar.rules.get(i).regex,
-                    this.input);
-
-                if (match != null) {
-                    matches.add(match); 
-                }
-        }
+        ArrayList<Token> matches = grammar.findRegexMatches(this.input);
 
         if (!this.input.isEmpty() && matches.isEmpty()) { // Handles lexical errors
             throw new IllegalArgumentException("No lexical element matches input.");
@@ -146,31 +94,6 @@ public class Tokenizer {
         }
         return true;
     }
-
-    private void removeFromInput(String remove) {
-        this.input = this.input.strip();
-        var start = this.input.indexOf(remove);
-        this.input = this.input.substring(start + remove.length()); // Removes the found value so we don't get duplicates
-    }
-
-    private Token matchRegex(String type, String rule, String input) {
-        try {
-            Pattern pattern = Pattern.compile(rule);
-            Matcher matcher = pattern.matcher(input);
-            boolean matches = matcher.find();
-
-            if (matches) {
-                String output = matcher.group(0);
-                return new Token(type, output);
-            } else {
-                return null;
-            }
-
-        } catch (Exception e) {
-            throw e;
-        }
-    }
-
     
     public Token maxmimalMunch(List<Token> tokens) {
         List<Integer> lengthList = new ArrayList<Integer>();
@@ -184,5 +107,48 @@ public class Tokenizer {
 
         return tokens.get(position); // Return the token at the position of winner
     }
+
+    public Token setFirstToken() {
+        Boolean endreached = checkForEndofInput();
+        if (endreached) {
+            return endToken(); // Sets first token to END, doesn't increase activeToken
+        } else {
+            Token t = tokenize();
+            return (Token) t;
+        }
+    }
+
+    private void removeFromInput(String remove) {
+        this.input = this.input.strip();
+        var start = this.input.indexOf(remove);
+        this.input = this.input.substring(start + remove.length()); // Removes the found value so we don't get duplicates
+    }
     
+    private Token handleEndToken() {
+        if (Tokens.get(activeToken).type != "END") {
+            activeToken++;
+            return endToken();
+        } else {
+            return getActiveToken();
+        }
+    }
+
+    private Token endToken() {
+        Tokens.add(new Token("END", ""));
+        return new Token("END", "");
+    }
+
+    private Boolean checkForEndofInput() {
+        String trimmedInput = this.input.trim();
+
+        if (trimmedInput == "") {
+            return true;
+        } else {
+            if (trimmedInput != null && !trimmedInput.isEmpty()) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
 }
