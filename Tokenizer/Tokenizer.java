@@ -55,9 +55,10 @@ public class Tokenizer {
         if (matches.size() > 1) { // Our match function found more than 1 match
             return compareTokens(matches);
         } else { // If there's only one Regex find, just return it
-            Tokens.add(new Token(matches.get(0).type, matches.get(0).value));
-            removeFromInput(matches.get(0).value);
-            return matches.get(0);
+            Token token = matches.get(0);
+            Tokens.add(new Token(token.type,token.value));
+            removeFromInput(token.value);
+            return token;
         }
     }
 
@@ -80,9 +81,10 @@ public class Tokenizer {
             return winner;
 
         } else { // All matches are at different positions, so we grab the first occurance
-            Tokens.add(new Token(matches.get(position).type, matches.get(position).value));
-            removeFromInput(matches.get(position).value);
-            return matches.get(position);
+            Token firstToken = matches.get(position);
+            Tokens.add(firstToken);
+            removeFromInput(firstToken.value);
+            return firstToken;
         }
     }
 
@@ -137,7 +139,7 @@ public class Tokenizer {
         var start = this.input.indexOf(remove);
         this.input = this.input.substring(start + remove.length()); // Removes the found value so we don't get duplicates
     }
-    
+
     private Boolean checkForEndofInput() {
         String trimmedInput = this.input.trim();
 
