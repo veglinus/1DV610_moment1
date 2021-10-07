@@ -1,8 +1,6 @@
 package Tokenizer;
 
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Grammar {
     ArrayList<TokenType> rules = new ArrayList<TokenType>();
@@ -15,10 +13,9 @@ public class Grammar {
         ArrayList<Token> matches = new ArrayList<Token>();
 
         for (int i = 0; i < this.rules.size(); i++) { // Check string against every rule
-            Token match = matchRegex(
-                this.rules.get(i).type,
-                this.rules.get(i).regex,
-                input);
+            TokenType current = this.rules.get(i);
+
+            Token match = current.matchRegex(input);
 
             if (match != null) {
                 matches.add(match); 
@@ -26,23 +23,5 @@ public class Grammar {
         }
 
         return matches;
-    }
-
-    private Token matchRegex(String type, String rule, String input) {
-        try {
-            Pattern pattern = Pattern.compile(rule);
-            Matcher matcher = pattern.matcher(input);
-            boolean matches = matcher.find();
-
-            if (matches) {
-                String output = matcher.group(0);
-                return new Token(type, output);
-            } else {
-                return null;
-            }
-
-        } catch (Exception e) {
-            throw e;
-        }
     }
 }
