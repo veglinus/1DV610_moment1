@@ -14,7 +14,6 @@ public class Tokenizer {
     public Tokenizer(Grammar grammar, String input) {
         this.grammar = grammar;
         this.input = input;
-        //next(); // To start the application we run next on construction
         setFirstToken();
     }
 
@@ -29,18 +28,19 @@ public class Tokenizer {
         } else {
             Token t = tokenize();
             activeToken++;
+            //System.out.println(Tokens.get(activeToken).toString());
             return (Token) t;
         }
     }
 
-    public void back() {
+    public Token back() {
         if (this.activeToken - 1 == -1) {
             throw new IllegalArgumentException("Can't go back further.");
         } else {
             // Can cause issues with going backwards
             this.activeToken--;
-            Token currentToken = Tokens.get(activeToken);
-            System.out.println(currentToken.toString());
+            //System.out.println((Tokens.get(activeToken).toString());
+            return Tokens.get(activeToken);
         }
     }
 
@@ -117,12 +117,6 @@ public class Tokenizer {
             return (Token) t;
         }
     }
-
-    private void removeFromInput(String remove) {
-        this.input = this.input.strip();
-        var start = this.input.indexOf(remove);
-        this.input = this.input.substring(start + remove.length()); // Removes the found value so we don't get duplicates
-    }
     
     private Token handleEndToken() {
         if (Tokens.get(activeToken).type != "END") {
@@ -138,6 +132,12 @@ public class Tokenizer {
         return new Token("END", "");
     }
 
+    private void removeFromInput(String remove) {
+        this.input = this.input.strip();
+        var start = this.input.indexOf(remove);
+        this.input = this.input.substring(start + remove.length()); // Removes the found value so we don't get duplicates
+    }
+    
     private Boolean checkForEndofInput() {
         String trimmedInput = this.input.trim();
 
