@@ -80,31 +80,46 @@ Lista de enskilda testfallen. **Fetmarkera** sådant som du själv fyllt i. En r
 ### Namngivning
 
 **Use Intention Revealing Names**
-Funktioner som checkForEndofInput, som kollar om inmatningssträngen är slut. Lång, men förklara väl i flödet vad det är vi kollar efter. Om den returnerar sant så går vi även till en funktion som kollar efter end token, som heter handleEndToken.
+Funktioner som ```private Boolean checkForEndofInput() {```, som kollar om inmatningssträngen är slut. Lång, men förklara väl i flödet vad det är vi kollar efter. Om den returnerar sant så går vi även till en funktion som kollar efter end token, ```private Token handleEndToken() {```. De publika funktioner som användaren stöter på tycker jag är uppenbara utifrån kontext, som ifall man har en tokenizer: `Tokenizer t = new Tokenizer(WordAndDotGrammar, "Hello world.");` och sedan callar `t.next();` så förstår man att vi går vidare i tokeniserings-processen.
 
-I tokenize använder jag även funktionnamn som regexMatch och listan av matchningar som vi lägger till matchningar i heter rakt av matches. Då blir det tydligt vad vi gör när vi använder saker som matches.size() och matches.get(0). 
+I TokenType använder jag även funktionnamnet regexMatch och listan av matchningar som vi lägger till matchningar i heter rakt av matches:
+`ArrayList<Token> matches = grammar.findRegexMatches(this.input);`
+Då blir det tydligt vad vi gör när vi använder saker som matches.size() och matches.get(0).
 
 **Use Pronounceable Names**
 Jag tror att nästan alla variabler och funktioner går att uttala, vilket är viktigt för mig.
+Exempel på detta är:
+```private void removeFromInput(String remove) {```
+```private Boolean checkForEndofInput() {```
+```private boolean checkDuplicateValues(List<Integer> matches) {```
+```public Token getActiveToken() {```
 
 **Use Searchable Names**
 Svår att uppfylla, vissa namn är lite sämre så som tokens och matches, men sedan finns det bra namn så som lastToken, activeToken med flera. 
 
 **Method names**
-Allt har verb förutom maximalMunch, funktionerna börjar med ord så som remove, check, compare osv. De publika funktionerna är ju next och back, vilket är lite på gränsen, men utifrån kontexten tokenizer.next så känns det ändå logiskt.
+Allt har verb förutom maximalMunch och endToken, funktionerna börjar med ord så som remove, check, compare osv. De publika funktionerna är ju next och back, vilket är lite på gränsen, men utifrån kontexten tokenizer.next så känns det ändå logiskt.
+```private Token handleEndToken() {``` säger att jag hanterar, ```public Token setFirstToken() {``` att vi sätter något och ```private Token compareTokens(ArrayList<Token> matches) {``` att vi jämför.
+
 
 ### Funktioner
 
-tokenize - **Do One Thing** är ju denna funktionen lite dålig på, eftersom det är den största och det är mycket som ska hanteras. Det är ju egentligen typ som en main() funktion. Men man tokenizerar ju, så den är ju sann till sitt namn som **Method Names** ur CC säger.
+tokenize - **Do One Thing** följs inte så väl, eftersom det är den största funktionen och det är mycket som ska hanteras. Bland annat så callas funktionen ```removeFromInput(token.value)``` också, vars jobb är att ta bort det hittade värdet från input. Men det framkommer inte i funktionens namn tokenize att den hanterar mer. Funktionen tar input strängen och returnerar nästa token, så den är ju sann till sitt namn som **Method Names** ur CC säger.
 
-compareTokens - **Do One Thing** den ljuger lite, eftersom att den även callar removeFromInput och lägger till tokenen i Tokens. Den gör det den ska, jämför tokens ja, men även lite andra dolda saker för att det är ett "lätt" ställe att ha allt på. **Avoid Mental Mapping** känns bra här, eftersom att jag försöker döpa allt på ett sätt att man ska ändå försöka hänga med, och inte behöva hålla koll på massa saker.
+compareTokens - **Do One Thing** funktionen gör flera saker, eftersom att den även callar removeFromInput som föregående och lägger till tokenen som hittats i Tokens. Varför den gör det här är ju för att det är vad som krävs för att allt ska funka nästa körning, men det kanske borde hanterats på ett annat sätt. **Avoid Mental Mapping** följs eftersom att jag försökt döpa allt på ett sätt så att man ska kunna hänga med, och inte behöva hålla koll på så mycket runt omkring. Jag tycker bland annat att "winner" är ett bra namn för den token som returneras av maximal munch; ```Token winner = maxmimalMunch(matchingTokens);```. Ett annat exempel är i foreach loopen, ```for (Token token : matches) {``` som förklarar sig själv ganska väl.
 
-handleEndToken - Printar även end token vilket är vilseledande. Men den hanterar end-tokens, och utifrån vart funktionen callas så fattar man vilket syfte den har.
-matchRegex - Gör enbart en sak. Dock tar den hela 3 argument, vilket kanske inte hade behövts. 
+handleEndToken - Callar en funktion som antingen skapar en END-token om det inte finns, eller skickar tillbaks aktiva END-tokenen. Kodsnutten ```if (Tokens.get(activeToken).type != "END") {``` är enligt mig läsbar nog att förstå exakt vad det betyder. Är den aktiva tokenens typ END?
 
-maximalMunch - Tar en lista av tokens och returnerar rätt token utifrån regeln maximal munch. **Do one Thing** och **Funciton Argument** eftersom den bara tar ett argument. Dock kanske användaren inte vet vad maximal munch är.
+matchRegex - I TokenType så matchar den en input sträng mot den regex regel som existerar. Används i Grammar klassen för att kolla varje regel mot input strängen. Denna funktionen följer **Do one Thing** eftersom att den bara kollar input mot TokenTypes egna regex. Genom att ha detta i TokenType blir det nu även mer tydligt när den ska användas, och man behöver bara ett argument vilket följer **Function Argument** regeln.
+När jag läser ```public Token matchRegex(String input) {``` så kan jag förstå att jag får en token tillbaks av denna funktionen, utifrån någon typ av regex. Vilken regex? Jo, det finns en variabel som heter regex i klassen TokenType, alltså den. Det hela känns mycket mer självförklarande.
 
-Allt i sig är ganska dåligt när det gäller **Use Searchable Names**, eftersom att det är mycket samma ord som används. Match, matches, token, tokens, tokentype tokenizer, osv. Samma prefix liksom. **Don't be cute** känner jag ändå att jag följt rätt bra.
+maximalMunch - Tar en lista av tokens och returnerar rätt token utifrån regeln maximal munch. **Do one Thing** och **Function Argument** eftersom den bara tar ett argument. Dock kanske användaren inte vet vad maximal munch är.
+
+Allt i sig är ganska dåligt när det gäller **Use Searchable Names**, eftersom att det är mycket samma ord som används. Match, matches, token, tokens, tokentype tokenizer, alltså samma prefix. 
+Söker jag på ordet "token" så får jag ju upp resultat för tokenizer, activeToken, m.m. Men jag anser ändå att orden jag har valt är rätta, och passar i kontextet. Men i fall det funkar är om jag söker på "endToken", då hittar jag direkt allt som har med endToken att göra, som funktionerna endToken och handleEndToken.
+
+Jag har även följt **Don't be cute** då jag försökt så mycket som möjligt att beskriva exakt vad allt gör och har för roll. Till en början hette tokenize funktionen resolve, vilket är lite av ett "cute" namn då den "löser" något. Men att bara heta tokenize är otroligt mycket mer beskrivande, annars undrar ju användaren vad det är man "resolvar".
+
 
 ## Laborationsreflektion
 
