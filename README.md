@@ -19,7 +19,7 @@ WordAndDotGrammar.add(new TokenType("DOT", "[.]"));
 5. Create a new Tokenizer object, pass the grammar object as the first parameter and your input as the second parameter:
 ```Tokenizer tokenizer = new Tokenizer(WordAndDotGrammar, "Hello world.");```
 
-6. Call ```tokenizer.next()``` to go to the next token or use ```tokenizer.back()``` to go back a token.
+1. Call ```tokenizer.getActiveToken()``` to get the current active token, ```tokenizer.next()``` to go to the next token or use ```tokenizer.back()``` to go back a token.
 
 Examples of the different grammars from the assignment are included in the Tester.java file. Remember that the regex input cannot have trailing or leading "/" slash symbols. Backslashes also need to be typed as two, "\\" instead of "\" in your regex.
 
